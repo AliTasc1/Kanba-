@@ -1,0 +1,20 @@
+/* No box-sizing reset: the prototype relies on the browser default (content-box). */
+html, body, #root { margin: 0; height: 100%; }
+body {
+  background: #F4F4F5;
+  font-family: 'Onest', system-ui, sans-serif;
+  color: #18181B;
+  -webkit-font-smoothing: antialiased;
+}
+button, input { font: inherit; }
+
+@keyframes kbIn { from { transform: translateX(40px); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes kbFade { from { opacity: 0 } to { opacity: 1 } }
+
+/* Hover states (the prototype's style-hover attributes). */
+.kb-nav:hover { background: #26262A !important; }
+.kb-kpi:hover { border-color: #A1A1AA !important; }
+.kb-row:hover { background: #FAFAFA !important; }
+
+/* Keyboard focus rings, kept subtle so the visual matches the prototype. */
+button:focus-visible, [role="button"]:focus-visible { outline: 2px solid #C4162A; outline-offset: 2px; }

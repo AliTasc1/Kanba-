@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Kanbağ",
+    "slug": "kanbag",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.kanbag"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#C4162A",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "app.kanbag"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
+    "scheme": "kanbag",
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
