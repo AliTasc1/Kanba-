@@ -14,8 +14,7 @@ const DONUT = [
 ];
 
 export default function Impact() {
-  const { st, c } = useApp();
-  const dons = st.dons;
+  const { st, c, dons } = useApp();
   const dCities = new Set(dons.map((x) => x.place.split(' / ')[1]));
   const stats = [
     { v: nf(Math.round(TOTALS.don * 1.03)), l: 'Toplam Ünite' },

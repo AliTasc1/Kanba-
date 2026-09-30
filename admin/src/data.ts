@@ -2,14 +2,14 @@
 // Province figures, months and monthly donations come from @shared so the
 // admin panel and the mobile app always show the same numbers.
 import { hash01 } from '@shared/data';
+import { MODERATOR, type AdminStatus, type DbNeed, type DbReport, type ReportStatus } from '@shared/sync';
 
 export type View =
   | 'dash' | 'verify' | 'needs' | 'dons' | 'users' | 'reports'
   | 'cities' | 'stats' | 'notifs' | 'payments' | 'settings';
 
-export type AdminStatus = 'bekliyor' | 'aktif' | 'kismen' | 'karsilandi' | 'suresi' | 'iptal' | 'askida';
+export type { AdminStatus } from '@shared/sync';
 
-/** label, background, foreground, border */
 export const ST: Record<AdminStatus, [string, string, string, string]> = {
   bekliyor: ['Doğrulama Bekliyor', '#FFFFFF', '#52525B', '#D4D4D8'],
   aktif: ['Aktif', '#EFEFF1', '#3F3F46', '#E4E4E7'],
@@ -20,66 +20,14 @@ export const ST: Record<AdminStatus, [string, string, string, string]> = {
   askida: ['Askıya Alındı', '#FCEEEF', '#A01223', '#F2B8BF'],
 };
 
-export const MOD = 'S. Aydın (Moderatör)';
-/** Fixed "now" used for new history entries in the demo. */
-export const NOW_STAMP = '30 Eyl 14:12';
+export const MOD = MODERATOR;
 
-export interface HistEntry { t: string; who: string; a: string }
-
-export interface AdminNeed {
-  id: string;
-  blood: string;
-  hospital: string;
-  district: string;
-  city: string;
-  units: number;
-  met: number;
-  status: AdminStatus;
-  created: string;
-  mins: number;
-  reports: number;
-  owner: string;
-  hist: HistEntry[];
-  verified?: boolean;
-}
-
-type NeedRow = [string, string, string, string, string, number, number, AdminStatus, string, number, number, string];
-
-const N0: NeedRow[] = [
-  ['KB-41-21008', '0-', 'Kocaeli Şehir Hastanesi', 'Başiskele', 'Kocaeli', 2, 0, 'bekliyor', '30 Eyl 14:06', 2, 0, 'Can K.'],
-  ['KB-34-88412', 'A+', 'Başakşehir Çam ve Sakura Şehir Hastanesi', 'Başakşehir', 'İstanbul', 4, 0, 'bekliyor', '30 Eyl 14:02', 6, 0, 'Derya Ş.'],
-  ['KB-06-55190', 'B-', 'Ankara Bilkent Şehir Hastanesi', 'Çankaya', 'Ankara', 2, 0, 'bekliyor', '30 Eyl 13:57', 11, 0, 'Murat E.'],
-  ['KB-35-41277', '0+', 'İzmir Tepecik Eğitim ve Araştırma Hastanesi', 'Konak', 'İzmir', 3, 0, 'bekliyor', '30 Eyl 13:49', 19, 1, 'Gül A.'],
-  ['KB-41-20960', 'AB+', 'Darıca Farabi Eğitim ve Araştırma Hastanesi', 'Darıca', 'Kocaeli', 2, 0, 'bekliyor', '30 Eyl 13:59', 9, 0, 'Zeynep A.'],
-  ['KB-41-20947', 'A+', 'Kocaeli Şehir Hastanesi', 'Başiskele', 'Kocaeli', 3, 1, 'kismen', '30 Eyl 13:50', 18, 0, 'Mehmet Y.'],
-  ['KB-41-20931', '0+', 'Kocaeli Üniversitesi Araştırma ve Uygulama Hastanesi', 'İzmit', 'Kocaeli', 4, 2, 'kismen', '30 Eyl 13:33', 35, 0, 'Ayşe T.'],
-  ['KB-16-30218', 'A-', 'Bursa Şehir Hastanesi', 'Nilüfer', 'Bursa', 2, 0, 'aktif', '30 Eyl 12:40', 88, 0, 'Onur P.'],
-  ['KB-27-19002', 'B+', 'Gaziantep Dr. Ersin Arslan Eğitim ve Araştırma Hastanesi', 'Şahinbey', 'Gaziantep', 2, 0, 'aktif', '30 Eyl 11:15', 173, 3, 'Hakan G.'],
-  ['KB-01-22871', '0+', 'Adana Şehir Hastanesi', 'Yüreğir', 'Adana', 3, 3, 'karsilandi', '30 Eyl 08:20', 348, 0, 'Emine D.'],
-  ['KB-54-10432', '0+', 'Sakarya Eğitim ve Araştırma Hastanesi', 'Adapazarı', 'Sakarya', 3, 1, 'kismen', '30 Eyl 10:48', 200, 0, 'Kemal B.'],
-  ['KB-34-88107', 'A+', 'Dr. Lütfi Kırdar Şehir Hastanesi', 'Kartal', 'İstanbul', 2, 2, 'karsilandi', '29 Eyl 19:02', 1144, 0, 'Burak N.'],
-  ['KB-07-17745', 'AB-', 'Antalya Eğitim ve Araştırma Hastanesi', 'Muratpaşa', 'Antalya', 1, 0, 'suresi', '28 Eyl 09:10', 3176, 0, 'Seda Y.'],
-  ['KB-42-12093', '0-', 'Konya Şehir Hastanesi', 'Karatay', 'Konya', 2, 0, 'iptal', '28 Eyl 16:25', 2741, 1, 'İsmail K.'],
-];
+export type { HistEntry } from '@shared/sync';
+/** Admin views read listings straight from the synced database. */
+export type AdminNeed = DbNeed;
 
 export const agoTxt = (m: number) =>
   m < 60 ? m + ' dk önce' : m < 1440 ? Math.floor(m / 60) + ' sa önce' : Math.floor(m / 1440) + ' gün önce';
-
-const mkHist = (r: NeedRow): HistEntry[] => {
-  const h: HistEntry[] = [{ t: r[8], who: 'Sistem', a: 'İlan oluşturuldu · ' + r[11] }];
-  if (r[7] !== 'bekliyor' && r[7] !== 'iptal')
-    h.push({ t: r[8].replace(/\d\d$/, (m) => String(Math.min(59, +m + 7)).padStart(2, '0')), who: MOD, a: 'Doğrulandı · hastane teyit edildi' });
-  if (r[6] > 0) h.push({ t: '30 Eyl 13:58', who: 'Sistem', a: r[6] + ' ünite karşılandı (ilan sahibi onayı)' });
-  if (r[7] === 'karsilandi') h.push({ t: '30 Eyl 14:01', who: 'İlan sahibi', a: 'İhtiyaç karşılandı olarak işaretlendi' });
-  if (r[7] === 'suresi') h.push({ t: '29 Eyl 09:10', who: 'Sistem', a: 'Son ihtiyaç zamanı geçti' });
-  if (r[7] === 'iptal') h.push({ t: '28 Eyl 18:02', who: MOD, a: 'İptal edildi · yinelenen ilan' });
-  return h.reverse();
-};
-
-export const INITIAL_NEEDS: AdminNeed[] = N0.map((r) => ({
-  id: r[0], blood: r[1], hospital: r[2], district: r[3], city: r[4], units: r[5], met: r[6],
-  status: r[7], created: r[8], mins: r[9], reports: r[10], owner: r[11], hist: mkHist(r),
-}));
 
 /** Name, blood, il, ilçe, total donations, activity, registered, notifications */
 export const USERS: [string, string, string, string, number, string, string, string][] = [
@@ -97,44 +45,8 @@ export const USERS: [string, string, string, string, number, string, string, str
   ['İrem S.', 'B+', 'Kocaeli', 'İzmit', 2, 'Son 7 gün', 'Ara 2025', 'Açık'],
 ];
 
-/** Donation id, donor, blood, need id, hospital, place, date, status */
-export const DONS: [string, string, string, string, string, string, string, 'Beyan' | 'Doğrulanmış'][] = [
-  ['BG-260930-118', 'Ali Y.', '0+', 'KB-41-20931', 'Kocaeli Üniversitesi Hastanesi', 'İzmit / Kocaeli', '30 Eyl 2026', 'Beyan'],
-  ['BG-260930-117', 'Oğuz B.', '0+', 'KB-54-10432', 'Sakarya EAH', 'Adapazarı / Sakarya', '30 Eyl 2026', 'Doğrulanmış'],
-  ['BG-260930-114', 'Nur G.', '0+', 'KB-01-22871', 'Adana Şehir Hastanesi', 'Yüreğir / Adana', '30 Eyl 2026', 'Doğrulanmış'],
-  ['BG-260930-109', 'Selma T.', 'A-', 'KB-41-20947', 'Kocaeli Şehir Hastanesi', 'Başiskele / Kocaeli', '30 Eyl 2026', 'Beyan'],
-  ['BG-260929-402', 'Elif K.', 'A+', 'KB-34-88107', 'Dr. Lütfi Kırdar Şehir Hastanesi', 'Kartal / İstanbul', '29 Eyl 2026', 'Doğrulanmış'],
-  ['BG-260929-398', 'Mert D.', 'B+', 'KB-06-54988', 'Ankara Bilkent Şehir Hastanesi', 'Çankaya / Ankara', '29 Eyl 2026', 'Doğrulanmış'],
-];
-
-/** Transaction no, amount, method, date, status */
-export const PAYS: [string, string, string, string, string][] = [
-  ['KBD-260930-4821', '100 TL', 'Apple Pay', '30 Eyl 2026 14:08', 'Başarılı'],
-  ['KBD-260930-4817', '10 TL', 'Google Pay', '30 Eyl 2026 13:51', 'Başarılı'],
-  ['KBD-260930-4809', '1.000 TL', 'Banka kartı', '30 Eyl 2026 12:22', 'Başarılı'],
-  ['KBD-260929-4777', '250 TL', 'Apple Pay', '29 Eyl 2026 21:40', 'Başarılı'],
-  ['KBD-260929-4760', '100 TL', 'Banka kartı', '29 Eyl 2026 18:03', 'İade edildi'],
-  ['KBD-260928-4702', '10.000 TL', 'Banka kartı', '28 Eyl 2026 10:17', 'Başarılı'],
-];
-
-export type ReportStatus = 'Yeni' | 'İnceleniyor' | 'Çözüldü';
-export interface Report {
-  id: string;
-  need: string;
-  reason: string;
-  reasons: [string, number][];
-  count: number;
-  time: string;
-  st: ReportStatus;
-  note: string;
-}
-
-export const INITIAL_REPORTS: Report[] = [
-  { id: 'ŞK-1042', need: 'KB-27-19002', reason: 'Şüpheli ilan', reasons: [['Şüpheli ilan', 2], ['Yanlış hastane', 1]], count: 3, time: '1 sa önce', st: 'Yeni', note: 'Kullanıcı notu: Hastanenin kan merkezi bu ilan için kayıt bulunmadığını söyledi. İlan sahibi 3 farklı ilde benzer ilan açmış.' },
-  { id: 'ŞK-1041', need: 'KB-35-41277', reason: 'Artık ihtiyaç yok', reasons: [['Artık ihtiyaç yok', 1]], count: 1, time: '3 sa önce', st: 'İnceleniyor', note: 'Kullanıcı notu: Hasta yakını ihtiyacın dün karşılandığını belirtti.' },
-  { id: 'ŞK-1039', need: 'KB-42-12093', reason: 'Taciz / kötüye kullanım', reasons: [['Taciz / kötüye kullanım', 1]], count: 1, time: '5 sa önce', st: 'Yeni', note: 'Kullanıcı notu: Uygulama içi mesajlarda bağış karşılığında ücret talep edildi.' },
-  { id: 'ŞK-1036', need: 'KB-34-88107', reason: 'Yanlış kan grubu', reasons: [['Yanlış kan grubu', 2]], count: 2, time: 'Dün', st: 'Çözüldü', note: 'Çözüm: İlan sahibi kan grubunu A− yerine A+ olarak düzeltti.' },
-];
+export type { ReportStatus } from '@shared/sync';
+export type Report = DbReport;
 
 /** background, foreground */
 export const RST: Record<ReportStatus, [string, string]> = {

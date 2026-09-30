@@ -1,19 +1,19 @@
-import { PAYS } from '../data';
+import { paymentLabel, type DbPayment } from '@shared/sync';
 import { badge, DataTable, TableLayout, tx } from '../components/DataTable';
 import { matcher } from './match';
 
-export function PaymentsView({ q }: { q: string }) {
+export function PaymentsView({ q, payments }: { q: string; payments: DbPayment[] }) {
   const match = matcher(q);
   return (
     <TableLayout note="Destek ödemeleri hiçbir özellik, öncelik veya görünürlük sağlamaz. Kan bağışı veya ilanlarla ilişkilendirilmez.">
       <DataTable
         cols="180px 120px minmax(0,1fr) minmax(0,1fr) 140px minmax(0,1fr)"
         heads={['İşlem no', 'Tutar', 'Yöntem', 'Tarih', 'Durum', 'Karşılığı']}
-        rows={PAYS.filter((p) => match(p)).map((p) => ({
-          key: p[0],
+        rows={payments.filter((p) => match([p.id, paymentLabel(p), p.method, p.date, p.status])).map((p) => ({
+          key: p.id,
           cells: [
-            tx(p[0], { mono: true }), tx(p[1], { fw: 700 }), tx(p[2]), tx(p[3], { fg: '#52525B' }),
-            p[4] === 'Başarılı' ? badge('Başarılı', '#E4F2EA', '#135E3D') : badge(p[4], '#F4F4F5', '#52525B', '#E4E4E7'),
+            tx(p.id, { mono: true }), tx(paymentLabel(p), { fw: 700 }), tx(p.method), tx(p.date, { fg: '#52525B' }),
+            p.status === 'Başarılı' ? badge('Başarılı', '#E4F2EA', '#135E3D') : badge(p.status, '#F4F4F5', '#52525B', '#E4E4E7'),
             tx('Yok · gönüllü destek', { fg: '#52525B' }),
           ],
         }))}

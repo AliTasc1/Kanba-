@@ -7,7 +7,7 @@ import { Card, CheckRow, Pill, Screen, Seg, T, Tap } from '../../../ui';
 
 export default function Record() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { set, c, allNeeds, toast } = useApp();
+  const { set, c, allNeeds, toast, recordDonation } = useApp();
   const n = allNeeds.find((x) => x.id === id) || NEEDS[1];
   const [rec, setRec] = useState({ day: 0, units: 1, doc: false, ok: false });
   const upd = (p: Partial<typeof rec>) => setRec((r) => ({ ...r, ...p }));
@@ -15,7 +15,8 @@ export default function Record() {
   const save = () => {
     if (!rec.ok) return toast('Kaydetmek için beyan kutusunu işaretle.');
     const dn = makeDonation(n, rec.units, rec.day);
-    set((s) => ({ dons: [dn, ...s.dons], lastDon: dn }));
+    recordDonation(dn);
+    set({ lastDon: { date: dn.date, units: dn.units, need: dn.needBlood, hospital: dn.hospital, place: dn.place, st: 'p', id: dn.id } });
     nav.reset('/home');
     nav.go('/donation-success');
   };

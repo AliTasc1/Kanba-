@@ -4,8 +4,7 @@ import { nav, useApp } from '../store';
 import { Btn, Card, ResultMark, Screen, T } from '../ui';
 
 export default function Published() {
-  const { st, c } = useApp();
-  const mn = st.myNeed;
+  const { c, myNeed: mn } = useApp();
   const pending = !!mn && mn.status === 'bekliyor';
   const ms = mn ? (mn.status === 'bekliyor' ? 1 : mn.status === 'karsilandi' ? 3 : 2) : 0;
   const steps = [

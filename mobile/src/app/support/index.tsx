@@ -8,12 +8,12 @@ import { Btn, Card, CheckLine, Drop, Grid, KVRows, Screen, Sheet, T, Tap } from 
 const AMOUNTS = [10, 100, 1000, 10000];
 
 export default function Support() {
-  const { st, set, c } = useApp();
+  const { st, set, c, pay: payNow } = useApp();
   const [pay, setPay] = useState(false);
   const custom = !AMOUNTS.includes(st.amt);
   const done = (m: string) => {
     setPay(false);
-    set({ payM: m });
+    set({ payM: m, payId: payNow(st.amt, m) });
     nav.reset('/profile');
     nav.go('/support/done');
   };

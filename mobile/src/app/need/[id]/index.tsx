@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 import { BLOODS, DONOR, NEEDS, REPORT_REASONS, ago, canDonateTo, km, longBlood } from '@shared';
 import { nav, useApp } from '../../../store';
 import { Bar, Btn, Card, Icon, KVRows, LockNote, PATHS, Pill, Radio, Screen, Sheet, T, Tap, type KV } from '../../../ui';
@@ -8,16 +8,17 @@ import { statusStyle } from '../../../ui/need';
 
 export default function NeedDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { st, set, c, allNeeds, toast } = useApp();
-  const n = allNeeds.find((x) => x.id === id) || NEEDS[1];
+  const { c, allNeeds, dbNeeds, toast, committed: isCommitted, commit: commitTo, report } = useApp();
+  const found = allNeeds.find((x) => x.id === id);
+  const n = found || allNeeds[0] || NEEDS[1];
   const [sheet, setSheet] = useState<null | 'confirm' | 'report'>(null);
   const [reason, setReason] = useState('');
 
   const open = n.status !== 'karsilandi';
   const ok = canDonateTo(n.blood);
-  const committed = !!st.committed[n.id];
+  const committed = isCommitted(n.id);
   const sd = statusStyle(n.status, c);
-  const going = n.going + (committed ? 1 : 0);
+  const going = n.going;
   const pct = Math.round((n.met / Math.max(1, n.units)) * 100);
   const donorsFor = BLOODS.filter((b) => DONOR[b].includes(n.blood)).join(', ');
 
@@ -46,16 +47,20 @@ export default function NeedDetail() {
   else bar = { l: 'Kan Bağışında Bulunacağım', on: () => setSheet('confirm'), kind: 'primary' };
 
   const commit = () => {
-    set((s) => ({ committed: { ...s.committed, [n.id]: true } }));
+    commitTo(n.id);
     setSheet(null);
     toast('Planın ilan sahibine iletildi. Hastaneye gittiğinde İlan ID’sini belirt.');
   };
   const submitReport = () => {
     if (!reason) return toast('Bir bildirim nedeni seç.');
+    report(n.id, reason);
     setSheet(null);
     setReason('');
     toast('Bildirimin alındı. İlan incelemeye alındı.');
   };
+
+  // Suspended, cancelled or expired (e.g. by a moderator while the user was looking at it).
+  if (!found && dbNeeds.some((x) => x.id === id)) return <Redirect href="/error/inactive" />;
 
   return (
     <Screen

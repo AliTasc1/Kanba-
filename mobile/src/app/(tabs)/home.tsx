@@ -7,7 +7,7 @@ import { NeedCard, statusStyle } from '../../ui/need';
 import { FiltersSheet } from '../../components/FiltersSheet';
 
 export default function Home() {
-  const { st, set, c, allNeeds } = useApp();
+  const { set, c, allNeeds, dons, myNeed } = useApp();
   const near = allNeeds.filter((n) => n.city === 'Kocaeli' && !n.mine && n.dist <= 25 && n.status !== 'karsilandi');
   const acil = near.filter((n) => n.status === 'acil').length;
   const compat = near.filter((n) => canDonateTo(n.blood)).length;
@@ -15,11 +15,11 @@ export default function Home() {
   const openK = allNeeds.filter((n) => n.city === 'Kocaeli' && n.status !== 'karsilandi').length;
   const quick = [
     { l: 'Yakınımdaki İhtiyaçlar', sub: openK + ' açık ilan', d: PATHS.pin, go: () => nav.tab('needs') },
-    { l: 'Bağışlarım', sub: st.dons.length + ' bağış', d: PATHS.donations, go: () => nav.tab('donations') },
+    { l: 'Bağışlarım', sub: dons.length + ' bağış', d: PATHS.donations, go: () => nav.tab('donations') },
     { l: 'Etki Alanımız', sub: '81 il', d: PATHS.impact, go: () => nav.tab('impact') },
   ];
   const [filters, setFilters] = useState(false);
-  const mn = st.myNeed;
+  const mn = myNeed;
   const ms = mn ? (mn.status === 'bekliyor' ? 1 : mn.status === 'karsilandi' ? 3 : 2) : 0;
 
   return (

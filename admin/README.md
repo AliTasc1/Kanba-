@@ -3,6 +3,10 @@
 Desktop moderation panel for Kanbağ, built from the Claude Design prototype
 `project/KanbagAdmin.dc.html`. It uses Vite, React 18 and TypeScript.
 
+## Live sync
+
+The panel connects to the sync server (`../server`, `ws://<host>:4000`, override with `VITE_SYNC_URL`). Listings, reports, donations and payments come from the shared database. Moderation actions (verify, reject, suspend, mark met, verify donation, resolve report) reach the mobile app instantly. The top bar shows the connection state. See `../CALISTIRMA.md`.
+
 ## Run
 
 ```bash
@@ -39,7 +43,7 @@ The layout is designed for desktop widths of 1280px and up (the prototype frame 
 - `src/views/` has one component per screen.
 - `../shared` is imported as `@shared`. Province stats (`provinceStats`, `TOTALS`), `PROVINCES`, `MONTHS`, `MONTHLY_DONATIONS`, `nf`, the province coordinates and the Türkiye outline all come from here, so the admin figures match the mobile app. The alias is set in `vite.config.ts`, where `server.fs.allow` includes the repo root, and in `tsconfig.app.json` `paths`.
 
-All state is in-memory demo state, so a reload resets it.
+Data is served by the sync server and kept in its memory, so restarting the server resets it.
 
 ## Screenshots
 

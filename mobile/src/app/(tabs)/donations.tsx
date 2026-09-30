@@ -4,8 +4,7 @@ import { useApp } from '../../store';
 import { Body, Card, Grid, Pill, Screen, T } from '../../ui';
 
 export default function Donations() {
-  const { st, c } = useApp();
-  const dons = st.dons;
+  const { st, c, dons } = useApp();
   const cities = new Set(dons.map((x) => x.place.split(' / ')[1]));
   const stats = [
     { v: dons.length, l: 'Toplam Bağış' },

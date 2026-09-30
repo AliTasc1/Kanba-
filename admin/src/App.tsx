@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  INITIAL_NEEDS, INITIAL_REPORTS, LATER, MOD, NOW_STAMP, TITLES,
-  type AdminNeed, type AdminStatus, type NeedTab, type Report, type View,
-} from './data';
+import { nf } from '@shared/data';
+import { stamp, type Action } from '@shared/sync';
+import { LATER, MOD, TITLES, type AdminStatus, type NeedTab, type View } from './data';
+import { useSync, useSyncEvents } from './sync';
 import { useHashRoute } from './route';
 import { Sidebar } from './components/Sidebar';
 import { Topbar } from './components/Topbar';
@@ -23,8 +23,8 @@ export default function App() {
   const { route, go } = useHashRoute();
   const { view, sel, tab } = route;
 
-  const [needs, setNeeds] = useState<AdminNeed[]>(INITIAL_NEEDS);
-  const [reports, setReports] = useState<Report[]>(INITIAL_REPORTS);
+  const { db, status, dispatch } = useSync();
+  const { needs, reports } = db;
   const [lastRep, setLastRep] = useState(0);
   const [q, setQ] = useState('');
   const [mapMetric, setMapMetric] = useState<MapMetric>('need');
@@ -39,11 +39,18 @@ export default function App() {
   }, []);
   useEffect(() => () => window.clearTimeout(toastTimer.current), []);
 
-  /** Apply a moderation action to a need: change status, prepend history, toast. */
-  const act = useCallback((id: string, status: AdminStatus, label: string, extra?: Partial<AdminNeed>) => {
-    setNeeds((ns) => ns.map((n) => (n.id !== id ? n : { ...n, status, ...extra, hist: [{ t: NOW_STAMP, who: MOD, a: label }, ...n.hist] })));
+  /** Apply a moderation action to a need (synced to every connected app): status + history + toast. */
+  const act = (id: string, to: AdminStatus, label: string, met?: number) => {
+    dispatch({ type: 'need.setStatus', id, status: to, label, who: MOD, at: stamp(), met });
     toast(id + ' · ' + label);
-  }, [toast]);
+  };
+
+  // Live activity from the mobile app.
+  useSyncEvents(useCallback(({ action, mine }: { action: Action; mine: boolean }) => {
+    if (mine) return;
+    const msg = describe(action);
+    if (msg) toast(msg);
+  }, [toast]));
 
   const goTo = (v: View, opts: { tab?: NeedTab; sel?: string } = {}) => go({ view: v, ...opts });
 
@@ -55,8 +62,9 @@ export default function App() {
   const repIdx = Math.min(repFromUrl >= 0 ? repFromUrl : lastRep, reports.length - 1);
   useEffect(() => { if (repFromUrl >= 0) setLastRep(repFromUrl); }, [repFromUrl]);
 
-  const setRep = (patch: Partial<Report>, msg: string) => {
-    setReports((rs) => rs.map((r, i) => (i === repIdx ? { ...r, ...patch } : r)));
+  const setRep = (st: 'Yeni' | 'İnceleniyor' | 'Çözüldü', msg: string) => {
+    const r = reports[repIdx];
+    if (r) dispatch({ type: 'report.update', id: r.id, st });
     toast(msg);
   };
   const hasNeed = (id: string) => needs.some((n) => n.id === id);
@@ -78,7 +86,7 @@ export default function App() {
           onMapMetric={setMapMetric}
           onMapSel={setMapSel}
           go={goTo}
-          onVerify={(id) => act(id, 'aktif', 'Doğrulandı · hastane teyit edildi', { verified: true })}
+          onVerify={(id) => act(id, 'aktif', 'Doğrulandı · hastane teyit edildi')}
         />
       );
       break;
@@ -97,8 +105,8 @@ export default function App() {
       );
       break;
     case 'users': body = <UsersView q={q} />; break;
-    case 'dons': body = <DonationsView q={q} />; break;
-    case 'payments': body = <PaymentsView q={q} />; break;
+    case 'dons': body = <DonationsView q={q} donations={db.donations} onVerify={(id) => { dispatch({ type: 'donation.verify', id, who: MOD, at: stamp() }); toast(id + ' · bağış doğrulandı'); }} />; break;
+    case 'payments': body = <PaymentsView q={q} payments={db.payments} />; break;
     case 'cities': body = <CitiesView q={q} onPick={(p) => { setMapSel(p); goTo('dash'); }} />; break;
     case 'stats': body = <StatsView />; break;
     case 'reports': {
@@ -112,10 +120,10 @@ export default function App() {
           onOpenNeed={(id) => (hasNeed(id) ? goTo('needs', { sel: id }) : toast('Bu ilan arşivde.'))}
           onSuspend={() => {
             if (hasNeed(r0.need)) act(r0.need, 'askida', 'Askıya alındı · şikayet ' + r0.id);
-            setRep({ st: 'Çözüldü' }, 'İlan askıya alındı, şikayet çözüldü.');
+            setRep('Çözüldü', 'İlan askıya alındı, şikayet çözüldü.');
           }}
-          onWarn={() => setRep({ st: 'İnceleniyor' }, 'İlan sahibine uyarı gönderildi.')}
-          onReject={() => setRep({ st: 'Çözüldü' }, 'Şikayet reddedildi.')}
+          onWarn={() => setRep('İnceleniyor', 'İlan sahibine uyarı gönderildi.')}
+          onReject={() => setRep('Çözüldü', 'Şikayet reddedildi.')}
         />
       );
       break;
@@ -132,18 +140,30 @@ export default function App() {
         onNav={(v) => { setQ(''); goTo(v); }}
       />
       <main style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-        <Topbar title={title} subtitle={subtitle} q={q} onQ={setQ} onExport={() => toast('CSV dışa aktarımı hazırlanıyor.')} />
+        <Topbar title={title} subtitle={subtitle} q={q} onQ={setQ} onExport={() => toast('CSV dışa aktarımı hazırlanıyor.')} live={status} />
         <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '24px 32px 32px' }}>{body}</div>
       </main>
       {drawerNeed && (
         <Drawer
           need={drawerNeed}
           onClose={closeDrawer}
-          onAction={(to, label) => act(drawerNeed.id, to, label, to === 'karsilandi' ? { met: drawerNeed.units } : undefined)}
+          onAction={(to, label) => act(drawerNeed.id, to, label, to === 'karsilandi' ? drawerNeed.units : undefined)}
           onBlocked={() => toast('Bu işlem mevcut durumda kullanılamaz.')}
         />
       )}
       <Toast msg={toastMsg} />
     </div>
   );
+}
+
+/** Toast text for activity coming from other clients (the mobile app). */
+function describe(a: Action): string | null {
+  switch (a.type) {
+    case 'need.create': return `Yeni ilan: ${a.need.id} · ${a.need.blood} · ${a.need.hospital} — doğrulama bekliyor`;
+    case 'need.commit': return `${a.id}: ${a.user} bağış planı oluşturdu`;
+    case 'donation.record': return `Yeni bağış beyanı: ${a.donation.donor} · ${a.donation.id}`;
+    case 'report.create': return `Yeni şikayet: ${a.need} · ${a.reason}`;
+    case 'payment.create': return `Yeni destek ödemesi: ${nf(a.payment.amount)} TL · ${a.payment.method}`;
+    default: return null;
+  }
 }

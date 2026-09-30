@@ -5,8 +5,7 @@ import { Body, Card, Grid, LinkBtn, Screen, SmallBtn, T } from '../../ui';
 import { SettingsGroups, row } from '../../components/Settings';
 
 export default function Profile() {
-  const { st, c, toast } = useApp();
-  const dons = st.dons;
+  const { st, c, toast, dons, myNeed } = useApp();
   const cities = new Set(dons.map((x) => x.place.split(' / ')[1]));
   const stats = [
     { v: dons.reduce((a, x) => a + x.units, 0), l: 'Toplam Ünite' },
@@ -14,7 +13,7 @@ export default function Profile() {
     { v: cities.size, l: 'Desteklenen İl' },
     { v: 'Nis 2025', l: 'İlk Bağış' },
   ];
-  const mn = st.myNeed;
+  const mn = myNeed;
   const groups = [
     { items: [row('Bağış geçmişim', dons.length + ' bağış', () => nav.tab('donations')), row('İhtiyaçlarım', mn ? '1 ilan' : 'Yok', () => (mn ? nav.go('/need/' + mn.id) : toast('Henüz bir ihtiyaç ilanı oluşturmadın.')))] },
     { items: [row('Bildirim ayarları', '', () => nav.go('/settings/notifications')), row('Bölge ayarlarım', 'Başiskele', () => nav.go('/settings/location')), row('Kan grubu', '0 Rh+', () => nav.go('/profile-edit'))] },
