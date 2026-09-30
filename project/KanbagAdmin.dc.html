@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+<style>@keyframes kbIn{from{transform:translateX(40px);opacity:0}to{transform:none;opacity:1}}@keyframes kbFade{from{opacity:0}to{opacity:1}}</style>
+</helmet>
+<div style="width:1440px;height:940px;display:flex;background:#F4F4F5;font-family:'Onest',system-ui,sans-serif;color:#18181B;-webkit-font-smoothing:antialiased;position:relative;overflow:hidden;border-radius:14px">
+
+<aside style="width:248px;flex:none;background:#18181B;color:#FFFFFF;display:flex;flex-direction:column;padding:20px 14px">
+<div style="display:flex;align-items:center;gap:10px;padding:4px 10px 22px"><div style="width:22px;height:22px;border-radius:50% 0 50% 50%;transform:rotate(-45deg);background:#C4162A"></div><span style="font-size:20px;font-weight:800;letter-spacing:-.03em">Kanbağ</span><span style="font:600 10px 'JetBrains Mono',monospace;padding:3px 6px;border-radius:4px;background:#2A2A2E;color:#C9C9CF;margin-left:auto">ADMIN</span></div>
+<nav style="display:flex;flex-direction:column;gap:2px">
+<sc-for list="{{ nav }}" as="n" hint-placeholder-count="11"><button onClick="{{ n.on }}" style="display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:10px;border:none;background:{{ n.bg }};color:{{ n.fg }};font:inherit;font-size:14px;font-weight:{{ n.fw }};cursor:pointer;text-align:left" style-hover="background:#26262A"><span style="width:6px;height:6px;border-radius:50%;background:{{ n.dot }}"></span><span style="flex:1">{{ n.l }}</span><sc-if value="{{ n.hasBadge }}"><span style="min-width:22px;height:20px;padding:0 6px;border-radius:10px;background:#C4162A;color:#FFFFFF;font-size:12px;font-weight:700;display:grid;place-items:center;box-sizing:border-box">{{ n.badge }}</span></sc-if></button></sc-for>
+</nav>
+<div style="margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:#222226"><div style="width:36px;height:36px;border-radius:50%;background:#3A161B;color:#FF8F9A;display:grid;place-items:center;font-size:13px;font-weight:700">SA</div><div><div style="font-size:14px;font-weight:600">Selin Aydın</div><div style="font-size:12px;color:#A1A1AA">Moderatör · Marmara</div></div></div>
+</aside>
+
+<main style="flex:1;min-width:0;display:flex;flex-direction:column">
+<header style="height:72px;flex:none;display:flex;align-items:center;gap:16px;padding:0 32px;border-bottom:1px solid #E4E4E7;background:#FFFFFF">
+<div style="display:flex;flex-direction:column"><div style="font-size:22px;font-weight:700;letter-spacing:-.02em">{{ title }}</div><div style="font-size:13px;color:#52525B">{{ subtitle }}</div></div>
+<div style="margin-left:auto;height:40px;width:320px;border-radius:10px;border:1px solid #E4E4E7;display:flex;align-items:center;gap:8px;padding:0 12px;background:#FAFAFA"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#71717A" stroke-width="2" stroke-linecap="round"><path d="M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13zM15.5 15.5 20 20"></path></svg><input value="{{ q }}" onChange="{{ onQ }}" placeholder="İlan ID, hastane, il veya kullanıcı ara" style="flex:1;border:none;outline:none;background:transparent;font:inherit;font-size:14px;color:#18181B;min-width:0"></div>
+<div style="height:40px;padding:0 14px;border-radius:10px;border:1px solid #E4E4E7;display:flex;align-items:center;font-size:14px;color:#3F3F46">30 Eylül 2026</div>
+<button onClick="{{ exportCsv }}" style="height:40px;padding:0 16px;border-radius:10px;border:none;background:#18181B;color:#FFFFFF;font:inherit;font-size:14px;font-weight:600;cursor:pointer">Dışa aktar</button>
+</header>
+
+<div style="flex:1;min-height:0;overflow:auto;padding:24px 32px 32px">
+
+<sc-if value="{{ v.dash }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:20px">
+<div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px">
+<sc-for list="{{ kpis }}" as="k" hint-placeholder-count="6"><button onClick="{{ k.on }}" style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:6px;text-align:left;font:inherit;color:#18181B;cursor:pointer" style-hover="border-color:#A1A1AA"><span style="font-size:13px;color:#52525B;font-weight:500">{{ k.l }}</span><span style="font-size:32px;font-weight:800;letter-spacing:-.03em;color:{{ k.c }}">{{ k.v }}</span><span style="font-size:12px;color:{{ k.dc }};font-weight:600">{{ k.d }}</span></button></sc-for>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:20px">
+<div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:16px;font-weight:700">Son 30 gün</div><div style="font-size:13px;color:#52525B">Günlük yeni ihtiyaç ve bağış sayısı</div></div><div style="display:flex;gap:16px;font-size:13px"><span style="display:flex;align-items:center;gap:6px"><span style="width:14px;height:3px;border-radius:2px;background:#C4162A"></span>Bağış</span><span style="display:flex;align-items:center;gap:6px"><span style="width:14px;height:3px;border-radius:2px;background:#18181B"></span>İhtiyaç</span></div></div>
+<svg viewBox="0 0 640 220" width="100%" height="240" style="display:block"><sc-for list="{{ grid30 }}" as="g" hint-placeholder-count="4"><line x1="36" x2="640" y1="{{ g.y }}" y2="{{ g.y }}" stroke="#EDEDEF" stroke-dasharray="3 5"></line><text x="0" y="{{ g.ty }}" font-size="11" fill="#71717A">{{ g.l }}</text></sc-for><path d="{{ d30 }}" fill="none" stroke="#C4162A" stroke-width="2.5" stroke-linejoin="round"></path><path d="{{ n30 }}" fill="none" stroke="#18181B" stroke-width="2" stroke-linejoin="round" stroke-dasharray="0"></path></svg>
+<div style="display:flex;justify-content:space-between;font-size:11px;color:#71717A;padding-left:36px"><span>1 Eyl</span><span>8 Eyl</span><span>15 Eyl</span><span>22 Eyl</span><span>30 Eyl</span></div>
+</div>
+<div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:16px;font-weight:700">İl bazlı yoğunluk</div><div style="display:flex;background:#F1F1F3;border-radius:10px;padding:3px;gap:2px"><sc-for list="{{ mapSeg }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.on }}" style="height:30px;padding:0 10px;border:none;border-radius:8px;background:{{ o.bg }};box-shadow:{{ o.sh }};font:inherit;font-size:12px;font-weight:600;color:#18181B;cursor:pointer">{{ o.l }}</button></sc-for></div></div>
+<div ref="{{ mapRef }}" style="height:200px"><x-import component-from-global-scope="kb-turkey-map" from="./kb-map.js" metric="{{ mapMetric }}" selected="{{ mapSel }}" theme="light" style="width:100%;height:200px" hint-size="100%,200px"></x-import></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#F6F6F7;border-radius:12px;padding:10px 14px"><span style="font-size:15px;font-weight:700">{{ mapSel }}</span><span style="font-size:13px;color:#52525B">{{ mapSelTxt }}</span></div>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:20px">
+<div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:18px;overflow:hidden">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px"><div style="font-size:16px;font-weight:700">Doğrulama bekleyen ilanlar</div><button onClick="{{ goVerify }}" style="border:none;background:none;font:inherit;font-size:14px;font-weight:600;color:#C4162A;cursor:pointer">Tümünü gör ›</button></div>
+<sc-for list="{{ pendingRows }}" as="p" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:120px 52px minmax(0,1fr) 90px 180px;align-items:center;gap:12px;padding:12px 20px;border-top:1px solid #F1F1F3;font-size:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px">{{ p.id }}</span><span style="height:26px;border-radius:8px;background:#FCEEEF;color:#A01223;font-weight:800;display:grid;place-items:center;font-size:13px">{{ p.blood }}</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><b style="font-weight:600">{{ p.hospital }}</b> · {{ p.place }}</span><span style="color:#52525B;font-size:13px">{{ p.ago }}</span><span style="display:flex;gap:8px;justify-content:flex-end"><button onClick="{{ p.verify }}" style="height:32px;padding:0 12px;border-radius:8px;border:none;background:#177A4E;color:#FFFFFF;font:inherit;font-size:13px;font-weight:600;cursor:pointer">Doğrula</button><button onClick="{{ p.open }}" style="height:32px;padding:0 12px;border-radius:8px;border:1px solid #E4E4E7;background:#FFFFFF;font:inherit;font-size:13px;font-weight:600;cursor:pointer;color:#18181B">İncele</button></span></div></sc-for>
+<sc-if value="{{ noPending }}"><div style="padding:24px 20px;border-top:1px solid #F1F1F3;color:#52525B;font-size:14px">Doğrulama bekleyen ilan yok.</div></sc-if>
+</div>
+<div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:12px">
+<div style="font-size:16px;font-weight:700">En fazla aktif ihtiyaç</div>
+<sc-for list="{{ topNeed }}" as="p" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:100px 1fr 40px;align-items:center;gap:10px;font-size:13px"><span>{{ p.n }}</span><div style="height:10px;border-radius:5px;background:#F1F1F3;overflow:hidden"><div style="height:100%;width:{{ p.w }};background:#C4162A;border-radius:5px"></div></div><span style="text-align:right;font-weight:600">{{ p.v }}</span></div></sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ v.table }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:16px">
+<sc-if value="{{ hasTabs }}"><div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="7"><button onClick="{{ t.on }}" style="height:36px;padding:0 14px;border-radius:999px;border:1px solid {{ t.bd }};background:{{ t.bg }};color:{{ t.fg }};font:inherit;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px">{{ t.l }}<span style="font-size:12px;opacity:.75">{{ t.n }}</span></button></sc-for></div></sc-if>
+<sc-if value="{{ hasNote }}"><div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:14px;padding:12px 16px;font-size:13px;color:#3F3F46">{{ tblNote }}</div></sc-if>
+<div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:18px;overflow:hidden">
+<div style="display:grid;grid-template-columns:{{ tbl.cols }};gap:12px;padding:12px 20px;background:#FAFAFA;border-bottom:1px solid #E4E4E7;font-size:12px;font-weight:700;letter-spacing:.04em;color:#52525B;text-transform:uppercase"><sc-for list="{{ tbl.heads }}" as="h" hint-placeholder-count="7"><span>{{ h }}</span></sc-for></div>
+<sc-for list="{{ tbl.rows }}" as="r" hint-placeholder-count="8"><div onClick="{{ r.on }}" style="display:grid;grid-template-columns:{{ tbl.cols }};gap:12px;align-items:center;padding:0 20px;min-height:52px;border-bottom:1px solid #F1F1F3;font-size:14px;cursor:{{ r.cur }};background:{{ r.bg }}" style-hover="background:#FAFAFA"><sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="7"><div style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:{{ c.fw }};font-family:{{ c.ff }};color:{{ c.fg }}"><sc-if value="{{ c.isBadge }}"><span style="display:inline-block;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;background:{{ c.bbg }};color:{{ c.bfg }};border:1px solid {{ c.bbd }}">{{ c.v }}</span></sc-if><sc-if value="{{ c.isText }}">{{ c.v }}</sc-if></div></sc-for></div></sc-for>
+<sc-if value="{{ tblEmpty }}"><div style="padding:32px;text-align:center;color:#52525B;font-size:14px">Bu filtreye uygun kayıt yok.</div></sc-if>
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;font-size:13px;color:#52525B"><span>{{ tblCount }}</span><span>Sayfa 1 / 1</span></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ v.stats }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:20px">
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px"><sc-for list="{{ statKpis }}" as="k" hint-placeholder-count="8"><div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:4px"><span style="font-size:13px;color:#52525B;font-weight:500">{{ k.l }}</span><span style="font-size:30px;font-weight:800;letter-spacing:-.03em">{{ k.v }}</span></div></sc-for></div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px">
+<div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:10px"><div style="font-size:16px;font-weight:700">Aylık bağış trendi</div>
+<svg viewBox="0 0 520 180" width="100%" height="190" style="display:block"><path d="{{ mArea }}" fill="#FCEEEF"></path><path d="{{ mLine }}" fill="none" stroke="#C4162A" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+<div style="display:grid;grid-template-columns:repeat(12,1fr);font-size:11px;color:#71717A;text-align:center"><sc-for list="{{ months }}" as="m" hint-placeholder-count="12"><span>{{ m }}</span></sc-for></div></div>
+<div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:10px"><div style="font-size:16px;font-weight:700">Aylık ihtiyaç trendi</div>
+<div style="height:190px;display:grid;grid-template-columns:repeat(12,1fr);gap:8px;align-items:end"><sc-for list="{{ needBars }}" as="b" hint-placeholder-count="12"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end"><span style="font-size:10px;color:#52525B">{{ b.v }}</span><div style="width:100%;height:{{ b.h }};background:#18181B;border-radius:6px 6px 2px 2px"></div></div></sc-for></div>
+<div style="display:grid;grid-template-columns:repeat(12,1fr);gap:8px;font-size:11px;color:#71717A;text-align:center"><sc-for list="{{ months }}" as="m" hint-placeholder-count="12"><span>{{ m }}</span></sc-for></div></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px">
+<div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:12px"><div style="font-size:16px;font-weight:700">En fazla ihtiyaç bulunan iller</div><sc-for list="{{ topNeed }}" as="p" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:100px 1fr 40px;align-items:center;gap:10px;font-size:13px"><span>{{ p.n }}</span><div style="height:10px;border-radius:5px;background:#F1F1F3;overflow:hidden"><div style="height:100%;width:{{ p.w }};background:#18181B;border-radius:5px"></div></div><span style="text-align:right;font-weight:600">{{ p.v }}</span></div></sc-for></div>
+<div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:12px"><div style="font-size:16px;font-weight:700">En fazla bağış yapılan iller</div><sc-for list="{{ topDon }}" as="p" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:100px 1fr 48px;align-items:center;gap:10px;font-size:13px"><span>{{ p.n }}</span><div style="height:10px;border-radius:5px;background:#F1F1F3;overflow:hidden"><div style="height:100%;width:{{ p.w }};background:#C4162A;border-radius:5px"></div></div><span style="text-align:right;font-weight:600">{{ p.v }}</span></div></sc-for></div>
+<div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:12px"><div style="font-size:16px;font-weight:700">Kan grubu dağılımı (ihtiyaç)</div><div style="display:flex;align-items:center;gap:20px"><svg viewBox="0 0 120 120" width="140" height="140" style="flex:none"><g transform="rotate(-90 60 60)"><sc-for list="{{ donut }}" as="d" hint-placeholder-count="5"><circle cx="60" cy="60" r="42" fill="none" stroke-width="16" style="stroke:{{ d.c }};stroke-dasharray:{{ d.da }};stroke-dashoffset:{{ d.off }}"></circle></sc-for></g></svg><div style="display:flex;flex-direction:column;gap:7px;flex:1"><sc-for list="{{ donut }}" as="d" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="width:10px;height:10px;border-radius:3px;background:{{ d.c }}"></span><span style="flex:1">{{ d.l }}</span><b>{{ d.p }}</b></div></sc-for></div></div></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ v.reports }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:420px minmax(0,1fr);gap:20px;align-items:start">
+<div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:18px;overflow:hidden"><sc-for list="{{ repList }}" as="r" hint-placeholder-count="4"><button onClick="{{ r.on }}" style="display:flex;flex-direction:column;gap:6px;width:100%;padding:16px 20px;border:none;border-bottom:1px solid #F1F1F3;background:{{ r.bg }};font:inherit;text-align:left;cursor:pointer;color:#18181B;border-left:3px solid {{ r.bl }}"><span style="display:flex;justify-content:space-between;align-items:center"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600">{{ r.id }} · {{ r.need }}</span><span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:{{ r.sbg }};color:{{ r.sfg }}">{{ r.st }}</span></span><span style="font-size:15px;font-weight:600">{{ r.reason }}</span><span style="font-size:13px;color:#52525B">{{ r.count }} bildirim · {{ r.time }}</span></button></sc-for></div>
+<div style="background:#FFFFFF;border:1px solid #E4E4E7;border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#52525B">{{ rep.id }}</div><div style="font-size:22px;font-weight:700;margin-top:4px">{{ rep.reason }}</div></div><span style="font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:{{ rep.sbg }};color:{{ rep.sfg }}">{{ rep.st }}</span></div>
+<div style="background:#F6F6F7;border-radius:14px;padding:16px;display:flex;gap:14px;align-items:center"><div style="width:52px;height:52px;border-radius:14px;background:#FCEEEF;color:#A01223;display:grid;place-items:center;font-size:18px;font-weight:800">{{ rep.blood }}</div><div style="flex:1"><div style="font-size:15px;font-weight:600">{{ rep.hospital }}</div><div style="font-size:13px;color:#52525B">{{ rep.need }} · {{ rep.place }} · {{ rep.needSt }}</div></div><button onClick="{{ rep.openNeed }}" style="height:36px;padding:0 12px;border-radius:10px;border:1px solid #E4E4E7;background:#FFFFFF;font:inherit;font-size:13px;font-weight:600;cursor:pointer;color:#18181B">İlanı aç</button></div>
+<div style="display:flex;flex-direction:column;gap:8px"><div style="font-size:13px;font-weight:700;color:#52525B;letter-spacing:.04em">BİLDİRİM NEDENLERİ</div><sc-for list="{{ rep.reasons }}" as="x" hint-placeholder-count="2"><div style="display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid #F1F1F3"><span>{{ x.l }}</span><b>{{ x.n }}</b></div></sc-for></div>
+<div style="font-size:14px;color:#3F3F46;line-height:1.5;background:#FAFAFA;border:1px solid #F1F1F3;border-radius:12px;padding:12px 14px">{{ rep.note }}</div>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+<button onClick="{{ rep.suspend }}" style="height:42px;padding:0 16px;border-radius:10px;border:none;background:#C4162A;color:#FFFFFF;font:inherit;font-size:14px;font-weight:600;cursor:pointer">İlanı askıya al</button>
+<button onClick="{{ rep.warn }}" style="height:42px;padding:0 16px;border-radius:10px;border:1px solid #E4E4E7;background:#FFFFFF;font:inherit;font-size:14px;font-weight:600;cursor:pointer;color:#18181B">İlan sahibini uyar</button>
+<button onClick="{{ rep.reject }}" style="height:42px;padding:0 16px;border-radius:10px;border:1px solid #E4E4E7;background:#FFFFFF;font:inherit;font-size:14px;font-weight:600;cursor:pointer;color:#18181B">Şikayeti reddet</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ v.later }}" hint-placeholder-val="{{ false }}">
+<div style="border:1.5px dashed #D4D4D8;border-radius:18px;padding:40px;background:repeating-linear-gradient(135deg,#F4F4F5 0 12px,#EDEDEF 12px 24px);display:flex;flex-direction:column;gap:8px;max-width:640px"><div style="font:600 12px 'JetBrains Mono',monospace;color:#52525B">SONRAKİ TUR</div><div style="font-size:16px;font-weight:500;line-height:1.5">{{ laterTxt }}</div></div>
+</sc-if>
+</div>
+</main>
+
+<sc-if value="{{ drawer }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeDrawer }}" style="position:absolute;inset:0;background:rgba(15,15,16,.3);animation:kbFade .2s"></div>
+<div role="dialog" style="position:absolute;top:0;right:0;bottom:0;width:460px;background:#FFFFFF;box-shadow:-20px 0 40px rgba(0,0,0,.12);display:flex;flex-direction:column;animation:kbIn .22s ease-out">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #F1F1F3"><div><div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#52525B">{{ dn.id }}</div><div style="font-size:20px;font-weight:700">İlan yönetimi</div></div><button onClick="{{ closeDrawer }}" aria-label="Kapat" style="width:40px;height:40px;border-radius:50%;border:none;background:#F1F1F3;font-size:20px;cursor:pointer;color:#18181B">×</button></div>
+<div style="flex:1;overflow:auto;padding:20px 24px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;gap:14px;align-items:center"><div style="width:64px;height:64px;border-radius:16px;background:#FCEEEF;color:#A01223;display:grid;place-items:center;font-size:22px;font-weight:800">{{ dn.blood }}</div><div style="flex:1"><span style="font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:{{ dn.sbg }};color:{{ dn.sfg }};border:1px solid {{ dn.sbd }}">{{ dn.sl }}</span><div style="font-size:15px;font-weight:600;margin-top:8px">{{ dn.met }} / {{ dn.units }} ünite karşılandı</div></div></div>
+<div style="border:1px solid #F1F1F3;border-radius:14px;padding:2px 16px"><sc-for list="{{ dn.rows }}" as="r" hint-placeholder-count="7"><div style="display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid {{ r.bd }};font-size:14px"><span style="color:#52525B">{{ r.k }}</span><span style="font-weight:500;text-align:right">{{ r.v }}</span></div></sc-for></div>
+<div style="display:flex;flex-direction:column;gap:8px"><div style="font-size:13px;font-weight:700;color:#52525B;letter-spacing:.04em">İŞLEMLER</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><sc-for list="{{ dn.actions }}" as="a" hint-placeholder-count="6"><button onClick="{{ a.on }}" style="height:42px;border-radius:10px;border:1px solid {{ a.bd }};background:{{ a.bg }};color:{{ a.fg }};font:inherit;font-size:14px;font-weight:600;cursor:{{ a.cur }};opacity:{{ a.op }}">{{ a.l }}</button></sc-for></div></div>
+<div style="display:flex;flex-direction:column;gap:10px"><div style="font-size:13px;font-weight:700;color:#52525B;letter-spacing:.04em">İŞLEM GEÇMİŞİ</div>
+<sc-for list="{{ dn.hist }}" as="h" hint-placeholder-count="3"><div style="display:flex;gap:12px"><div style="display:flex;flex-direction:column;align-items:center;width:10px;padding-top:5px"><span style="width:10px;height:10px;border-radius:50%;background:{{ h.c }}"></span><span style="width:2px;flex:1;background:{{ h.line }}"></span></div><div style="padding-bottom:14px;flex:1"><div style="font-size:14px;font-weight:600">{{ h.a }}</div><div style="font-size:12px;color:#52525B">{{ h.who }} · {{ h.t }}</div></div></div></sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}"><div role="status" style="position:absolute;left:50%;bottom:28px;transform:translateX(-50%);background:#18181B;color:#FFFFFF;border-radius:12px;padding:12px 18px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:kbFade .2s">{{ toast }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:940},&quot;view&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;dash&quot;,&quot;options&quot;:[&quot;dash&quot;,&quot;verify&quot;,&quot;needs&quot;,&quot;drawer&quot;,&quot;users&quot;,&quot;dons&quot;,&quot;reports&quot;,&quot;cities&quot;,&quot;stats&quot;,&quot;payments&quot;],&quot;tsType&quot;:&quot;string&quot;}}">
+const PROV=['Adana','Adıyaman','Afyonkarahisar','Ağrı','Aksaray','Amasya','Ankara','Antalya','Ardahan','Artvin','Aydın','Balıkesir','Bartın','Batman','Bayburt','Bilecik','Bingöl','Bitlis','Bolu','Burdur','Bursa','Çanakkale','Çankırı','Çorum','Denizli','Diyarbakır','Düzce','Edirne','Elazığ','Erzincan','Erzurum','Eskişehir','Gaziantep','Giresun','Gümüşhane','Hakkari','Hatay','Iğdır','Isparta','İstanbul','İzmir','Kahramanmaraş','Karabük','Karaman','Kars','Kastamonu','Kayseri','Kilis','Kırıkkale','Kırklareli','Kırşehir','Kocaeli','Konya','Kütahya','Malatya','Manisa','Mardin','Mersin','Muğla','Muş','Nevşehir','Niğde','Ordu','Osmaniye','Rize','Sakarya','Samsun','Şanlıurfa','Siirt','Sinop','Sivas','Şırnak','Tekirdağ','Tokat','Trabzon','Tunceli','Uşak','Van','Yalova','Yozgat','Zonguldak'];
+const WGT={'İstanbul':9,'Ankara':4.6,'İzmir':3.8,'Bursa':2.8,'Antalya':2.4,'Konya':2.1,'Adana':2.1,'Gaziantep':1.9,'Şanlıurfa':1.8,'Mersin':1.8,'Diyarbakır':1.6,'Hatay':1.5,'Kayseri':1.4,'Manisa':1.3,'Samsun':1.3,'Sakarya':1.2,'Balıkesir':1.1,'Kahramanmaraş':1.1,'Van':1.1,'Tekirdağ':1.0,'Denizli':1.0,'Eskişehir':1.0,'Aydın':1.0,'Malatya':.9,'Trabzon':.9,'Muğla':.9,'Erzurum':.8,'Mardin':.8,'Ordu':.7,'Afyonkarahisar':.7,'Elazığ':.6,'Batman':.6,'Sivas':.6,'Adıyaman':.6,'Tokat':.55,'Zonguldak':.55,'Çorum':.5,'Osmaniye':.5,'Kütahya':.5,'Aksaray':.45,'Isparta':.45,'Düzce':.45,'Yalova':.35};
+const hh=(s,k)=>{let x=2166136261^k;for(const ch of s){x^=ch.charCodeAt(0);x=Math.imul(x,16777619);}return ((x>>>0)%10000)/10000;};
+const pstat=n=>{if(n==='Kocaeli')return {active:12,met:145,donation:428,vol:1284};const w=WGT[n]??(0.18+0.2*hh(n,1));const donation=Math.round(190*w*(0.9+0.2*hh(n,2)));return {active:Math.max(1,Math.round(5*w*(0.6+0.8*hh(n,3)))),met:Math.round(donation*(0.3+0.08*hh(n,4))),donation,vol:Math.round(donation*(2.8+0.6*hh(n,5)))};};
+const nf=v=>Number(v).toLocaleString('tr-TR');
+const TOT=PROV.reduce((a,p)=>{const s=pstat(p);a.don+=s.donation;a.met+=s.met;a.vol+=s.vol;a.active+=s.active;return a;},{don:0,met:0,vol:0,active:0});
+const MONTHS=['Eki','Kas','Ara','Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl'];
+const MDATA=[812,856,905,1010,968,1042,1120,1164,1098,1205,1262,1318];
+const MNEED=[260,275,290,318,301,330,352,361,344,372,389,402];
+const ST={bekliyor:['Doğrulama Bekliyor','#FFFFFF','#52525B','#D4D4D8'],aktif:['Aktif','#EFEFF1','#3F3F46','#E4E4E7'],kismen:['Kısmen Karşılandı','#FBF0DC','#6B3F00','#F1DDB5'],karsilandi:['Karşılandı','#E4F2EA','#135E3D','#CDE7D8'],suresi:['Süresi Doldu','#F4F4F5','#52525B','#E4E4E7'],iptal:['İptal Edildi','#F4F4F5','#52525B','#E4E4E7'],askida:['Askıya Alındı','#FCEEEF','#A01223','#F2B8BF']};
+const MOD='S. Aydın (Moderatör)';
+const N0=[
+['KB-41-21008','0-','Kocaeli Şehir Hastanesi','Başiskele','Kocaeli',2,0,'bekliyor','30 Eyl 14:06',2,0,'Can K.'],
+['KB-34-88412','A+','Başakşehir Çam ve Sakura Şehir Hastanesi','Başakşehir','İstanbul',4,0,'bekliyor','30 Eyl 14:02',6,0,'Derya Ş.'],
+['KB-06-55190','B-','Ankara Bilkent Şehir Hastanesi','Çankaya','Ankara',2,0,'bekliyor','30 Eyl 13:57',11,0,'Murat E.'],
+['KB-35-41277','0+','İzmir Tepecik Eğitim ve Araştırma Hastanesi','Konak','İzmir',3,0,'bekliyor','30 Eyl 13:49',19,1,'Gül A.'],
+['KB-41-20960','AB+','Darıca Farabi Eğitim ve Araştırma Hastanesi','Darıca','Kocaeli',2,0,'bekliyor','30 Eyl 13:59',9,0,'Zeynep A.'],
+['KB-41-20947','A+','Kocaeli Şehir Hastanesi','Başiskele','Kocaeli',3,1,'kismen','30 Eyl 13:50',18,0,'Mehmet Y.'],
+['KB-41-20931','0+','Kocaeli Üniversitesi Araştırma ve Uygulama Hastanesi','İzmit','Kocaeli',4,2,'kismen','30 Eyl 13:33',35,0,'Ayşe T.'],
+['KB-16-30218','A-','Bursa Şehir Hastanesi','Nilüfer','Bursa',2,0,'aktif','30 Eyl 12:40',88,0,'Onur P.'],
+['KB-27-19002','B+','Gaziantep Dr. Ersin Arslan Eğitim ve Araştırma Hastanesi','Şahinbey','Gaziantep',2,0,'aktif','30 Eyl 11:15',173,3,'Hakan G.'],
+['KB-01-22871','0+','Adana Şehir Hastanesi','Yüreğir','Adana',3,3,'karsilandi','30 Eyl 08:20',348,0,'Emine D.'],
+['KB-54-10432','0+','Sakarya Eğitim ve Araştırma Hastanesi','Adapazarı','Sakarya',3,1,'kismen','30 Eyl 10:48',200,0,'Kemal B.'],
+['KB-34-88107','A+','Dr. Lütfi Kırdar Şehir Hastanesi','Kartal','İstanbul',2,2,'karsilandi','29 Eyl 19:02',1144,0,'Burak N.'],
+['KB-07-17745','AB-','Antalya Eğitim ve Araştırma Hastanesi','Muratpaşa','Antalya',1,0,'suresi','28 Eyl 09:10',3176,0,'Seda Y.'],
+['KB-42-12093','0-','Konya Şehir Hastanesi','Karatay','Konya',2,0,'iptal','28 Eyl 16:25',2741,1,'İsmail K.']];
+const agoTxt=m=>m<60?m+' dk önce':m<1440?Math.floor(m/60)+' sa önce':Math.floor(m/1440)+' gün önce';
+const mkHist=r=>{const h=[{t:r[8],who:'Sistem',a:'İlan oluşturuldu · '+r[11]}];if(r[7]!=='bekliyor'&&r[7]!=='iptal')h.push({t:r[8].replace(/\d\d$/,m=>String(Math.min(59,+m+7)).padStart(2,'0')),who:MOD,a:'Doğrulandı · hastane teyit edildi'});if(r[6]>0)h.push({t:'30 Eyl 13:58',who:'Sistem',a:r[6]+' ünite karşılandı (ilan sahibi onayı)'});if(r[7]==='karsilandi')h.push({t:'30 Eyl 14:01',who:'İlan sahibi',a:'İhtiyaç karşılandı olarak işaretlendi'});if(r[7]==='suresi')h.push({t:'29 Eyl 09:10',who:'Sistem',a:'Son ihtiyaç zamanı geçti'});if(r[7]==='iptal')h.push({t:'28 Eyl 18:02',who:MOD,a:'İptal edildi · yinelenen ilan'});return h.reverse();};
+const USERS=[['Ali Y.','0+','Kocaeli','Başiskele',5,'Son 7 gün','Nis 2025','Açık'],['Elif K.','A+','İstanbul','Kadıköy',3,'Son 7 gün','Oca 2025','Açık'],['Mert D.','B+','Ankara','Çankaya',7,'Son 30 gün','Eki 2024','Açık'],['Zehra A.','0-','İzmir','Bornova',2,'Son 7 gün','Mar 2026','Açık'],['Can Ö.','AB+','Bursa','Nilüfer',1,'Pasif','Haz 2025','Kapalı'],['Selma T.','A-','Kocaeli','Gebze',4,'Son 30 gün','Ağu 2025','Açık'],['Oğuz B.','0+','Sakarya','Serdivan',6,'Son 7 gün','Kas 2024','Açık'],['Hatice Y.','B-','Konya','Selçuklu',0,'Son 30 gün','Eyl 2026','Açık'],['Emre Ş.','A+','Antalya','Muratpaşa',2,'Pasif','Şub 2025','Kapalı'],['Nur G.','0+','Adana','Seyhan',3,'Son 7 gün','May 2025','Açık'],['Kaan E.','AB-','Gaziantep','Şahinbey',1,'Son 30 gün','Tem 2026','Açık'],['İrem S.','B+','Kocaeli','İzmit',2,'Son 7 gün','Ara 2025','Açık']];
+const DONS=[['BG-260930-118','Ali Y.','0+','KB-41-20931','Kocaeli Üniversitesi Hastanesi','İzmit / Kocaeli','30 Eyl 2026','Beyan'],['BG-260930-117','Oğuz B.','0+','KB-54-10432','Sakarya EAH','Adapazarı / Sakarya','30 Eyl 2026','Doğrulanmış'],['BG-260930-114','Nur G.','0+','KB-01-22871','Adana Şehir Hastanesi','Yüreğir / Adana','30 Eyl 2026','Doğrulanmış'],['BG-260930-109','Selma T.','A-','KB-41-20947','Kocaeli Şehir Hastanesi','Başiskele / Kocaeli','30 Eyl 2026','Beyan'],['BG-260929-402','Elif K.','A+','KB-34-88107','Dr. Lütfi Kırdar Şehir Hastanesi','Kartal / İstanbul','29 Eyl 2026','Doğrulanmış'],['BG-260929-398','Mert D.','B+','KB-06-54988','Ankara Bilkent Şehir Hastanesi','Çankaya / Ankara','29 Eyl 2026','Doğrulanmış']];
+const PAYS=[['KBD-260930-4821','100 TL','Apple Pay','30 Eyl 2026 14:08','Başarılı'],['KBD-260930-4817','10 TL','Google Pay','30 Eyl 2026 13:51','Başarılı'],['KBD-260930-4809','1.000 TL','Banka kartı','30 Eyl 2026 12:22','Başarılı'],['KBD-260929-4777','250 TL','Apple Pay','29 Eyl 2026 21:40','Başarılı'],['KBD-260929-4760','100 TL','Banka kartı','29 Eyl 2026 18:03','İade edildi'],['KBD-260928-4702','10.000 TL','Banka kartı','28 Eyl 2026 10:17','Başarılı']];
+const REP0=[{id:'ŞK-1042',need:'KB-27-19002',reason:'Şüpheli ilan',reasons:[['Şüpheli ilan',2],['Yanlış hastane',1]],count:3,time:'1 sa önce',st:'Yeni',note:'Kullanıcı notu: Hastanenin kan merkezi bu ilan için kayıt bulunmadığını söyledi. İlan sahibi 3 farklı ilde benzer ilan açmış.'},
+{id:'ŞK-1041',need:'KB-35-41277',reason:'Artık ihtiyaç yok',reasons:[['Artık ihtiyaç yok',1]],count:1,time:'3 sa önce',st:'İnceleniyor',note:'Kullanıcı notu: Hasta yakını ihtiyacın dün karşılandığını belirtti.'},
+{id:'ŞK-1039',need:'KB-42-12093',reason:'Taciz / kötüye kullanım',reasons:[['Taciz / kötüye kullanım',1]],count:1,time:'5 sa önce',st:'Yeni',note:'Kullanıcı notu: Uygulama içi mesajlarda bağış karşılığında ücret talep edildi.'},
+{id:'ŞK-1036',need:'KB-34-88107',reason:'Yanlış kan grubu',reasons:[['Yanlış kan grubu',2]],count:2,time:'Dün',st:'Çözüldü',note:'Çözüm: İlan sahibi kan grubunu A− yerine A+ olarak düzeltti.'}];
+const RST={'Yeni':['#FCEEEF','#A01223'],'İnceleniyor':['#FBF0DC','#6B3F00'],'Çözüldü':['#E4F2EA','#135E3D']};
+const path=(vals,W,H,pad,mn,mx)=>{mn=mn??Math.min(...vals);mx=mx??Math.max(...vals);return 'M'+vals.map((v,i)=>(pad+i*(W-pad-4)/(vals.length-1)).toFixed(1)+' '+(H-12-(v-mn)/((mx-mn)||1)*(H-28)).toFixed(1)).join(' L');};
+
+class Component extends DCLogic {
+  mapRef = el => { if(el&&!el._kb){el._kb=1;el.addEventListener('kbselect',e=>this.setState({mapSel:e.detail}));} };
+  state = {view:((v)=>v==='drawer'?'needs':v||'dash')((this.props||{}).view),tab:'all',q:'',sel:(this.props||{}).view==='drawer'?'KB-27-19002':null,mapMetric:'need',mapSel:'Kocaeli',toast:null,
+    needs:N0.map(r=>({id:r[0],blood:r[1],hospital:r[2],district:r[3],city:r[4],units:r[5],met:r[6],status:r[7],created:r[8],mins:r[9],reports:r[10],owner:r[11],hist:mkHist(r)})),
+    reps:REP0.map(r=>({...r})),rep:0};
+  componentWillUnmount(){clearTimeout(this.tt);}
+  toast(m){this.setState({toast:m});clearTimeout(this.tt);this.tt=setTimeout(()=>this.setState({toast:null}),2400);}
+  act(id,status,label,extra){this.setState(s=>({needs:s.needs.map(n=>n.id!==id?n:{...n,status,...(extra||{}),hist:[{t:'30 Eyl 14:12',who:MOD,a:label},...n.hist]})}));this.toast(id+' · '+label);}
+  renderVals(){
+    const st=this.state,view=st.view;
+    const pending=st.needs.filter(n=>n.status==='bekliyor');
+    const openReps=st.reps.filter(r=>r.st!=='Çözüldü').length;
+    const NAV=[['dash','Dashboard'],['verify','Doğrulama Bekleyenler',pending.length],['needs','İhtiyaçlar'],['dons','Bağışlar'],['users','Kullanıcılar'],['reports','Şikayetler',openReps],['cities','İller ve İlçeler'],['stats','İstatistikler'],['notifs','Bildirimler'],['payments','Destek Ödemeleri'],['settings','Sistem Ayarları']];
+    const nav=NAV.map(([k,l,b])=>{const on=view===k;return {l,badge:b,hasBadge:!!b,bg:on?'#2A2A2E':'transparent',fg:on?'#FFFFFF':'#C9C9CF',fw:on?'600':'500',dot:on?'#C4162A':'#3F3F46',on:()=>this.setState({view:k,tab:'all',sel:null,q:''})};});
+    const TITLES={dash:['Dashboard','Bugün · Türkiye geneli'],verify:['Doğrulama Bekleyenler','Yayına alınmadan önce hastane ve iletişim bilgilerini kontrol et'],needs:['İhtiyaçlar','Tüm ilanlar ve durumları'],dons:['Bağışlar','Beyan edilen ve doğrulanmış bağışlar'],users:['Kullanıcılar','Kayıtlı gönüllüler'],reports:['Şikayetler','Kullanıcı bildirimleri'],cities:['İller ve İlçeler','81 il · il bazlı özet'],stats:['İstatistikler','Sosyal etki ve operasyon metrikleri'],notifs:['Bildirimler','Toplu ve bölgesel bildirimler'],payments:['Destek Ödemeleri','Gönüllü geliştirici destekleri · hiçbir özellik açmaz'],settings:['Sistem Ayarları','Doğrulama kuralları, roller, entegrasyonlar']};
+    const q=st.q.trim().toLocaleLowerCase('tr'),match=a=>!q||a.join(' ').toLocaleLowerCase('tr').includes(q);
+    const badge=(v,bg,fg,bd)=>({v,isBadge:true,isText:false,bbg:bg,bfg:fg,bbd:bd||bg,fw:'400',ff:'inherit',fg:'#18181B'});
+    const tx=(v,o)=>({v,isBadge:false,isText:true,fw:(o&&o.fw)||'400',ff:o&&o.mono?"'JetBrains Mono',monospace":'inherit',fg:(o&&o.fg)||'#18181B'});
+    const bl=b=>badge(b,'#FCEEEF','#A01223');
+    let tbl={cols:'1fr',heads:[],rows:[]},tabs=[],tblNote='';
+    if(view==='needs'||view==='verify'){
+      const T=[['all','Tümü'],['bekliyor','Doğrulama Bekliyor'],['aktif','Aktif'],['kismen','Kısmen Karşılandı'],['karsilandi','Karşılandı'],['suresi','Süresi Doldu'],['iptal','İptal / Askıda']];
+      const tabK=view==='verify'?'bekliyor':st.tab;
+      const inTab=(n,k)=>k==='all'||n.status===k||(k==='iptal'&&n.status==='askida');
+      if(view==='needs')tabs=T.map(([k,l])=>{const on=st.tab===k;return {l,n:st.needs.filter(n=>inTab(n,k)).length,bg:on?'#18181B':'#FFFFFF',fg:on?'#FFFFFF':'#18181B',bd:on?'#18181B':'#E4E4E7',on:()=>this.setState({tab:k})};});
+      const rows=st.needs.filter(n=>inTab(n,tabK)&&match([n.id,n.hospital,n.city,n.district,n.blood,n.owner]));
+      tbl={cols:'130px 60px minmax(0,2.2fr) minmax(0,1.1fr) 80px 110px 170px 70px',heads:['İlan ID','Grup','Hastane','İl / İlçe','Ünite','Oluşturma','Durum','Şikayet'],
+        rows:rows.map(n=>{const s=ST[n.status];return {on:()=>this.setState({sel:n.id}),cur:'pointer',bg:st.sel===n.id?'#FAFAFA':'#FFFFFF',cells:[tx(n.id,{mono:1,fw:'600'}),bl(n.blood),tx(n.hospital,{fw:'500'}),tx(n.district+' / '+n.city,{fg:'#3F3F46'}),tx(n.met+' / '+n.units),tx(agoTxt(n.mins),{fg:'#52525B'}),badge(s[0],s[1],s[2],s[3]),n.reports?badge(String(n.reports),'#C4162A','#FFFFFF'):tx('—',{fg:'#A1A1AA'})]};})};
+      if(view==='verify')tblNote='Kontrol listesi: hastane kayıtlı mı · servis ve kan grubu tutarlı mı · iletişim numarası SMS ile doğrulanmış mı · ilanda ücret veya kişisel sağlık bilgisi var mı.';
+    }
+    if(view==='users'){const rows=USERS.filter(u=>match(u));tbl={cols:'minmax(0,1.2fr) 70px minmax(0,1fr) minmax(0,1fr) 110px 130px 110px 100px',heads:['Kullanıcı','Grup','İl','İlçe','Top. bağış','Aktiflik','Kayıt','Bildirim'],
+      rows:rows.map(u=>({on:()=>{},cur:'default',bg:'#FFFFFF',cells:[tx(u[0],{fw:'600'}),bl(u[1]),tx(u[2]),tx(u[3],{fg:'#3F3F46'}),tx(String(u[4]),{fw:'600'}),u[5]==='Pasif'?badge('Pasif','#F4F4F5','#52525B','#E4E4E7'):badge(u[5],'#E4F2EA','#135E3D'),tx(u[6],{fg:'#52525B'}),tx(u[7],{fg:u[7]==='Açık'?'#135E3D':'#52525B',fw:'600'})]}))};tblNote='Kişisel veriler maskelidir. Telefon numarası ve doğum tarihi yalnızca yetkili rol ve gerekçeyle görüntülenebilir; her görüntüleme kayda alınır.';}
+    if(view==='dons'){const rows=DONS.filter(d=>match(d));tbl={cols:'150px minmax(0,.8fr) 60px 130px minmax(0,1.6fr) minmax(0,1.1fr) 120px 130px',heads:['Bağış ID','Bağışçı','Grup','İlan ID','Hastane','İl / İlçe','Tarih','Durum'],
+      rows:rows.map(d=>({on:()=>{},cur:'default',bg:'#FFFFFF',cells:[tx(d[0],{mono:1}),tx(d[1],{fw:'600'}),bl(d[2]),tx(d[3],{mono:1,fg:'#3F3F46'}),tx(d[4]),tx(d[5],{fg:'#3F3F46'}),tx(d[6],{fg:'#52525B'}),d[7]==='Beyan'?badge('Beyan','#FFFFFF','#3F3F46','#D4D4D8'):badge('✓ Doğrulanmış','#E4F2EA','#135E3D')]}))};tblNote='Beyan: kullanıcının kendi kaydı. Doğrulanmış: ilan sahibi veya hastane onayı alınmış bağış. Sistem bağışı otomatik doğrulamaz.';}
+    if(view==='payments'){const rows=PAYS.filter(p=>match(p));tbl={cols:'180px 120px minmax(0,1fr) minmax(0,1fr) 140px minmax(0,1fr)',heads:['İşlem no','Tutar','Yöntem','Tarih','Durum','Karşılığı'],
+      rows:rows.map(p=>({on:()=>{},cur:'default',bg:'#FFFFFF',cells:[tx(p[0],{mono:1}),tx(p[1],{fw:'700'}),tx(p[2]),tx(p[3],{fg:'#52525B'}),p[4]==='Başarılı'?badge('Başarılı','#E4F2EA','#135E3D'):badge(p[4],'#F4F4F5','#52525B','#E4E4E7'),tx('Yok · gönüllü destek',{fg:'#52525B'})]}))};tblNote='Destek ödemeleri hiçbir özellik, öncelik veya görünürlük sağlamaz. Kan bağışı veya ilanlarla ilişkilendirilmez.';}
+    if(view==='cities'){const rows=PROV.filter(p=>match([p])).map(p=>({p,...pstat(p)})).sort((a,b)=>b.donation-a.donation);tbl={cols:'60px minmax(0,1.4fr) repeat(4,minmax(0,1fr))',heads:['#','İl','Aktif ihtiyaç','Karşılanan','Toplam bağış','Gönüllü'],
+      rows:rows.map((r,i)=>({on:()=>this.setState({mapSel:r.p,view:'dash'}),cur:'pointer',bg:'#FFFFFF',cells:[tx(String(i+1),{fg:'#71717A'}),tx(r.p,{fw:'600'}),tx(nf(r.active),{fg:r.active>=15?'#A01223':'#18181B',fw:r.active>=15?'700':'400'}),tx(nf(r.met)),tx(nf(r.donation),{fw:'600'}),tx(nf(r.vol),{fg:'#3F3F46'})]}))};}
+    const isTable=['needs','verify','users','dons','payments','cities'].includes(view);
+    // dashboard
+    const acil=st.needs.filter(n=>['aktif','kismen'].includes(n.status)).length;
+    const kpis=[{l:'Bugünkü ihtiyaçlar',v:'38',d:'+6 dünden',dc:'#135E3D',c:'#18181B',on:()=>this.setState({view:'needs'})},{l:'Bugünkü bağışlar',v:'112',d:'+14 dünden',dc:'#135E3D',c:'#18181B',on:()=>this.setState({view:'dons'})},{l:'Aktif acil ilanlar',v:String(58+acil),d:'81 ilde',dc:'#52525B',c:'#C4162A',on:()=>this.setState({view:'needs',tab:'aktif'})},{l:'Karşılanan (bugün)',v:'29',d:'%76 karşılanma',dc:'#135E3D',c:'#18181B',on:()=>this.setState({view:'needs',tab:'karsilandi'})},{l:'Doğrulama bekleyen',v:String(pending.length),d:'ort. bekleme 9 dk',dc:'#6B3F00',c:'#18181B',on:()=>this.setState({view:'verify'})},{l:'Açık şikayetler',v:String(openReps),d:'1 yüksek öncelik',dc:'#A01223',c:'#18181B',on:()=>this.setState({view:'reports'})}];
+    const D=[],Nn=[];for(let i=0;i<30;i++){D.push(Math.round(96+18*Math.sin(i/4+1)+i*0.6+12*hh('d',i)));Nn.push(Math.round(32+7*Math.sin(i/3)+i*0.2+6*hh('n',i)));}
+    const mn=0,mx=140;
+    const grid30=[0,35,70,105,140].map(v=>({y:(220-12-(v-mn)/(mx-mn)*(220-28)).toFixed(1),ty:(220-12-(v-mn)/(mx-mn)*(220-28)+4).toFixed(1),l:String(v)}));
+    const byA=PROV.map(p=>({n:p,...pstat(p)}));
+    const tn=byA.slice().sort((a,b)=>b.active-a.active).slice(0,6),td=byA.slice().sort((a,b)=>b.donation-a.donation).slice(0,6);
+    const topNeed=tn.map(p=>({n:p.n,v:nf(p.active),w:Math.round(p.active/tn[0].active*100)+'%'}));
+    const topDon=td.map(p=>({n:p.n,v:nf(p.donation),w:Math.round(p.donation/td[0].donation*100)+'%'}));
+    const ms=pstat(st.mapSel);
+    const mapSeg=[['need','İhtiyaç'],['donation','Bağış']].map(([k,l])=>{const on=st.mapMetric===k;return {l,bg:on?'#FFFFFF':'transparent',sh:on?'0 1px 3px rgba(0,0,0,.12)':'none',on:()=>this.setState({mapMetric:k})};});
+    const pendingRows=pending.slice(0,4).map(n=>({...n,place:n.district+' / '+n.city,ago:agoTxt(n.mins),verify:()=>this.act(n.id,'aktif','Doğrulandı · hastane teyit edildi',{verified:true}),open:()=>this.setState({view:'verify',sel:n.id})}));
+    // stats
+    const statKpis=[['Toplam kullanıcı',nf(Math.round(TOT.vol*1.6))],['Aktif kullanıcı (30 gün)',nf(TOT.vol)],['Toplam bağışçı',nf(Math.round(TOT.don*.62))],['Toplam ihtiyaç',nf(Math.round(TOT.met*1.29))],['Karşılanan ihtiyaç',nf(TOT.met)],['Karşılanma oranı','%77'],['Toplam ünite',nf(Math.round(TOT.don*1.03))],['Ortalama cevap süresi','2 sa 14 dk']].map(([l,v])=>({l,v}));
+    const mLine=path(MDATA,520,180,6);const mArea=mLine+' L516 180 L6 180 Z';
+    const nMax=Math.max(...MNEED);const needBars=MNEED.map(v=>({v,h:Math.round(v/nMax*160)+'px'}));
+    const C=2*Math.PI*42;let acc=0;
+    const donut=[['A+',38,'#C4162A'],['0+',29,'#E26A76'],['B+',14,'#F2B8BF'],['AB+',7,'#8A8A93'],['Rh− (tümü)',12,'#D4D4D8']].map(([l,p,c])=>{const len=C*p/100;const o={l,p:'%'+p,c,da:len.toFixed(2)+' '+(C-len).toFixed(2),off:(-acc).toFixed(2)};acc+=len;return o;});
+    // reports
+    const ri=Math.min(st.rep,st.reps.length-1),r0=st.reps[ri];
+    const setRep=(p,msg)=>{this.setState(s=>({reps:s.reps.map((r,i)=>i===ri?{...r,...p}:r)}));this.toast(msg);};
+    const needOf=id=>st.needs.find(n=>n.id===id);
+    const rn=needOf(r0.need)||{hospital:'Ankara Bilkent Şehir Hastanesi',blood:'A-',district:'Çankaya',city:'Ankara',status:'aktif'};
+    const repList=st.reps.map((r,i)=>{const c=RST[r.st];return {...r,sbg:c[0],sfg:c[1],bg:i===ri?'#FAFAFA':'#FFFFFF',bl:i===ri?'#C4162A':'transparent',on:()=>this.setState({rep:i})};});
+    const rc=RST[r0.st];
+    const rep={...r0,sbg:rc[0],sfg:rc[1],reasons:r0.reasons.map(([l,n])=>({l,n})),hospital:rn.hospital,blood:rn.blood,place:rn.district+' / '+rn.city,needSt:(ST[rn.status]||ST.aktif)[0],
+      openNeed:()=>{if(needOf(r0.need))this.setState({view:'needs',tab:'all',sel:r0.need});else this.toast('Bu ilan arşivde.');},
+      suspend:()=>{if(needOf(r0.need))this.act(r0.need,'askida','Askıya alındı · şikayet '+r0.id);setRep({st:'Çözüldü'},'İlan askıya alındı, şikayet çözüldü.');},
+      warn:()=>setRep({st:'İnceleniyor'},'İlan sahibine uyarı gönderildi.'),reject:()=>setRep({st:'Çözüldü'},'Şikayet reddedildi.')};
+    // drawer
+    const dnN=st.needs.find(n=>n.id===st.sel);
+    let dn={};
+    if(dnN){const s=ST[dnN.status];const A=[['Doğrula','aktif','Doğrulandı · hastane teyit edildi',['bekliyor'],'#177A4E'],['Reddet','iptal','Reddedildi · bilgi doğrulanamadı',['bekliyor'],null],['Askıya al','askida','Askıya alındı',['aktif','kismen','bekliyor'],null],['Karşılandı işaretle','karsilandi','Karşılandı olarak işaretlendi',['aktif','kismen'],null],['İptal et','iptal','İptal edildi',['aktif','kismen','askida','bekliyor'],null],['Yeniden etkinleştir','aktif','Yeniden etkinleştirildi',['askida'],null]];
+      dn={...dnN,sl:s[0],sbg:s[1],sfg:s[2],sbd:s[3],
+        rows:[['Hastane',dnN.hospital],['İl / İlçe',dnN.district+' / '+dnN.city],['İlan sahibi',dnN.owner+' · tel. SMS doğrulandı'],['Oluşturma',dnN.created],['Şikayet',dnN.reports?dnN.reports+' bildirim':'Yok'],['Hasta bilgisi','Baş harfler · sağlık bilgisi yok']].map(([k,v],i,a)=>({k,v,bd:i===a.length-1?'transparent':'#F1F1F3'})),
+        actions:A.map(([l,to,lab,allowed,col])=>{const ok=allowed.includes(dnN.status);return {l,cur:ok?'pointer':'not-allowed',op:ok?1:.4,bg:ok&&col?col:'#FFFFFF',fg:ok&&col?'#FFFFFF':(l==='Reddet'||l==='İptal et'?'#A01223':'#18181B'),bd:ok&&col?col:'#E4E4E7',on:()=>ok?this.act(dnN.id,to,lab,to==='karsilandi'?{met:dnN.units}:null):this.toast('Bu işlem mevcut durumda kullanılamaz.')};}),
+        hist:dnN.hist.map((h,i,a)=>({...h,c:i===0?'#C4162A':'#D4D4D8',line:i===a.length-1?'transparent':'#E4E4E7'}))};}
+    const LATER={notifs:'Toplu bildirim oluşturma (il, ilçe, kan grubu hedefleme), zamanlanmış bildirimler ve gönderim raporları.',settings:'Doğrulama kuralları, moderatör rolleri ve bölge yetkileri, SMS ve ödeme sağlayıcısı entegrasyonları, denetim kayıtları.'};
+    return {
+      nav,title:TITLES[view][0],subtitle:TITLES[view][1],q:st.q,onQ:e=>this.setState({q:e.target.value}),exportCsv:()=>this.toast('CSV dışa aktarımı hazırlanıyor.'),
+      v:{dash:view==='dash',table:isTable,stats:view==='stats',reports:view==='reports',later:!!LATER[view]},laterTxt:LATER[view]||'',
+      kpis,grid30,d30:path(D,640,220,36,mn,mx),n30:path(Nn,640,220,36,mn,mx),mapSeg,mapRef:this.mapRef,mapMetric:st.mapMetric,mapSel:st.mapSel,
+      mapSelTxt:`${nf(ms.active)} aktif · ${nf(ms.donation)} bağış · ${nf(ms.vol)} gönüllü`,pendingRows,noPending:!pending.length,goVerify:()=>this.setState({view:'verify'}),topNeed,topDon,
+      tabs,hasTabs:tabs.length>0,tbl,tblEmpty:!tbl.rows.length,tblCount:tbl.rows.length+' kayıt',tblNote,hasNote:!!tblNote,
+      statKpis,mLine,mArea,months:MONTHS,needBars,donut,
+      repList,rep,
+      drawer:!!dnN&&(view==='needs'||view==='verify'),dn,closeDrawer:()=>this.setState({sel:null}),
+      hasToast:!!st.toast,toast:st.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
