@@ -93,6 +93,45 @@ Mobil uygulama, senkron sunucusunun adresini Expo'nun adresinden otomatik bulur.
 
 Aynı anda birden fazla telefon veya tarayıcı bağlanabilir, hepsi aynı veriyi görür.
 
+## Farklı ağdan test (başka telefon, mobil veri)
+
+Telefon bilgisayarla aynı Wi-Fi'de değilse **iki tünel** gerekir. Birincisi uygulamanın kendisi (Expo), ikincisi canlı senkron sunucusu (port 4000). Admin paneli bilgisayarda `localhost` ile çalışmaya devam eder.
+
+**1. Senkron sunucusu için tünel (4. terminal).** Hesap gerektirmeyen Cloudflare Quick Tunnel kullanılabilir:
+
+- Kurulum: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+  - Windows: `winget install --id Cloudflare.cloudflared`
+  - macOS: `brew install cloudflared`
+- Sunucu (`npm start`) açıkken:
+
+```bash
+cloudflared tunnel --url http://localhost:4000
+```
+
+Çıktıda `https://kelime-kelime-kelime.trycloudflare.com` gibi bir adres çıkar. Bu terminali açık bırak.
+
+**2. Mobil uygulamaya bu adresi ver.** `mobile/.env.local` dosyası oluştur (git'e gitmez). Adresin başındaki `https://` yerine `wss://` yaz:
+
+```
+EXPO_PUBLIC_SYNC_URL=wss://kelime-kelime-kelime.trycloudflare.com
+```
+
+**3. Expo'yu tünel modunda başlat** (3. terminalde, önceki `expo start`'ı durdurup):
+
+```bash
+cd mobile
+npx expo start --tunnel --clear
+```
+
+İlk seferde `@expo/ngrok` kurulumu için onay ister, "Y" de. QR kod artık `exp.direct` adresiyle gelir; mobil verideki telefon da okutabilir.
+
+**Kontrol:** Telefonda **Profil → Ayarlar → Canlı bağlantı** bölümünde **● Bağlı** yazmalı, sunucu adresi olarak `wss://…trycloudflare.com` görünmeli.
+
+Notlar:
+- Quick Tunnel adresi `cloudflared` her yeniden başladığında değişir. Değişince `.env.local` dosyasını güncelle ve `npx expo start --tunnel --clear` ile yeniden başlat.
+- Tekrar aynı Wi-Fi'de test edeceksen `.env.local` içindeki satırı sil, yoksa uygulama tünel adresini kullanmaya devam eder.
+- Tünel adresini bilen herkes sunucuya bağlanabilir ve sunucuda kimlik doğrulama yok. Test bitince tüneli kapat (Ctrl+C).
+
 ## Faydalı komutlar
 
 - Sunucudaki güncel veri: tarayıcıda `http://localhost:4000/state`
@@ -104,7 +143,7 @@ Aynı anda birden fazla telefon veya tarayıcı bağlanabilir, hepsi aynı veriy
 - **Mobilde "Çevrimdışı" yazıyor / admin'de değişiklik görünmüyor.**
   1. Telefon ve bilgisayar aynı Wi-Fi'de mi?
   2. Güvenlik duvarı port 4000'i engelliyor mu?
-  3. `npx expo start --tunnel` kullanıyorsan senkron çalışmaz; normal (LAN) modda başlat.
+  3. `npx expo start --tunnel` kullanıyorsan senkron sunucusu için de ayrı bir tünel açmalısın (aşağıdaki "Farklı ağdan test" bölümü).
   4. Gerekirse adresi elle ver: `EXPO_PUBLIC_SYNC_URL=ws://192.168.1.20:4000 npx expo start` (Windows PowerShell: `$env:EXPO_PUBLIC_SYNC_URL="ws://192.168.1.20:4000"; npx expo start`).
 - **Expo Go "incompatible SDK" diyor:** Expo Go'yu mağazadan güncelle.
 - **Sunucu kapalıyken:** Uygulamalar yerel veriyle çalışmaya devam eder ve her 2 saniyede bir yeniden bağlanmayı dener. Bu durumda mobilde oluşturulan ilan, demo olarak yaklaşık 8 saniye sonra kendi kendine doğrulanır.
